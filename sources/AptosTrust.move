@@ -1,4 +1,4 @@
-module 0xCAFE::AptosTrust {
+module kimroniny::AptosTrust {
     use std::signer;
     use std::vector;
     use aptos_framework::big_ordered_map;
@@ -9,7 +9,7 @@ module 0xCAFE::AptosTrust {
     use 0x1::event;
     use std::bcs;
 
-    const MODULE_OWNER: address = @0xCAFE;
+    const MODULE_OWNER: address = @kimroniny;
 
     const ENOT_MODULE_OWNER: u64 = 1;
     const EVERIFY_HEADER_FAILED: u64 = 2;
@@ -195,7 +195,7 @@ module 0xCAFE::AptosTrust {
         new_epoch_interval: u64,
     }
 
-    #[test(account=@0xCAFE)]
+    #[test(account=@kimroniny)]
     fun registParaChainByCorrectOwner(account: &signer) acquires ParaChains {
         registParaChain(account, 1u64);
         assert!(borrow_global<ParaChains>(MODULE_OWNER).chains.contains(&1));
@@ -208,7 +208,7 @@ module 0xCAFE::AptosTrust {
         registParaChain(account, 1u64);
     }
 
-    #[test(account=@0xCAFE, aptos_framework=@aptos_framework)]
+    #[test(account=@kimroniny, aptos_framework=@aptos_framework)]
     fun storeHeaderOnce(account: &signer, aptos_framework: &signer) acquires AllHeaders{
         aptos_framework::account::create_account_for_test(signer::address_of(aptos_framework));
         block::initialize_for_test(aptos_framework, 3000000u64); // it does not show in doc:reference, but show in codes
@@ -221,7 +221,7 @@ module 0xCAFE::AptosTrust {
         assert!(headersByHeight.length() == 1);
     }
 
-    #[test(account=@0xCAFE, vm=@vm_reserved, aptos_framework=@aptos_framework)]
+    #[test(account=@kimroniny, vm=@vm_reserved, aptos_framework=@aptos_framework)]
     fun buildWithoutPrefix(account: &signer, vm: &signer, aptos_framework: &signer) acquires HCRByHeight {
         aptos_framework::account::create_account_for_test(signer::address_of(aptos_framework));
         block::initialize_for_test(aptos_framework, 3000000u64); // it does not show in doc:reference, but show in codes
@@ -234,7 +234,7 @@ module 0xCAFE::AptosTrust {
         assert!(*borrow_global<HCRByHeight>(MODULE_OWNER).hcrs.borrow(&current_height) == root);
     }
 
-    #[test(account=@0xCAFE)]
+    #[test(account=@kimroniny)]
     fun countVotesNoEmpty(account: &signer) acquires VotesByHeight {
         let sequence = vector[1u64, 2u64, 10u64];
         countVotes(account, &sequence);
@@ -242,7 +242,7 @@ module 0xCAFE::AptosTrust {
         assert!(votes.compute_length() == vector::length(&sequence));
     }
 
-    #[test(account=@0xCAFE)]
+    #[test(account=@kimroniny)]
     fun countVotesEmpty(account: &signer) acquires VotesByHeight {
         let sequence = vector[1u64, 2u64, 10u64];
         countVotes(account, &sequence);
