@@ -45,7 +45,28 @@ module kimroniny::AptosTrust {
             move_to(operator, ParaChains {chains: big_ordered_map::new<u64, bool>()});
         };
         let chains_mut = &mut borrow_global_mut<ParaChains>(MODULE_OWNER).chains;
+        if (chains_mut.contains(&chainId)) {
+            return;
+        };
         chains_mut.add(chainId, true);
+    }
+
+    #[view]
+    public fun getParachain(chainId: u64): bool acquires ParaChains {
+        if (!exists<ParaChains>(MODULE_OWNER)) {
+            return false;
+        };
+        let chains = & borrow_global<ParaChains>(MODULE_OWNER).chains;
+        chains.contains(&chainId)
+    }
+
+    #[view]
+    public fun getParachainCount(): u64 acquires ParaChains {
+        if (!exists<ParaChains>(MODULE_OWNER)) {
+            return 0;
+        };
+        let chains = & borrow_global<ParaChains>(MODULE_OWNER).chains;
+        chains.compute_length()
     }
 
     fun verifyHeader(operator: &signer, chainId: u64, height: u64, root: vector<u8>): bool {
@@ -77,6 +98,26 @@ module kimroniny::AptosTrust {
             relayHeight: current_height,
             root: root
         });
+    }
+
+    #[view]
+    public fun getHeader(chainId: u64, height: u64): (u64, vector<u8>) acquires AllHeaders {
+        if (!exists<AllHeaders>(MODULE_OWNER)) {
+            return (0, vector::empty<u8>());
+        };
+
+        // calculate key
+        let chainIdBytes = bcs::to_bytes(&chainId);
+        let heightBytes = bcs::to_bytes(&height);
+        chainIdBytes.append(heightBytes);
+        
+        // get header.relayHeight by key
+        let headersByHeight = & borrow_global<AllHeaders>(MODULE_OWNER).headersByHeight;
+        if (!headersByHeight.contains(&chainIdBytes)) {
+            return (0, vector::empty<u8>());
+        };
+        let header = headersByHeight.borrow(&chainIdBytes);
+        (header.relayHeight, header.root)
     }
 
     fun build(operator: &signer, chainId: u64, height: u64, root: vector<u8>) acquires HCRByHeight {
@@ -172,6 +213,72 @@ module kimroniny::AptosTrust {
         CHECK_VOTE_NOT_ENOUGH       
     }
 
+    #[view]
+    public fun getParaHeaderVotes(chainId: u64, height: u64) :u64 acquires AllHeaders,VotesByHeight {
+        // check whether init AllHeaders
+        assert!(exists<AllHeaders>(MODULE_OWNER));
+
+        // calculate key
+        let chainIdBytes = bcs::to_bytes(&chainId);
+        let heightBytes = bcs::to_bytes(&height);
+        chainIdBytes.append(heightBytes);
+        
+        // get header.relayHeight by key
+        let headersByHeight = & borrow_global<AllHeaders>(MODULE_OWNER).headersByHeight;
+        if (!headersByHeight.contains(&chainIdBytes)) {
+            return CHECK_NOT_EXIST;
+        };
+        let relayHeight = headersByHeight.borrow(&chainIdBytes).relayHeight;
+        
+        // get votes of relayHeight
+        assert!(exists<VotesByHeight>(MODULE_OWNER));
+        let votes = & borrow_global<VotesByHeight>(MODULE_OWNER).votes;
+        // assert!(votes.contains(&relayHeight));
+        let totalVotes = votes.borrow(&relayHeight);
+        *totalVotes
+    }
+
+    #[view]
+    public fun checkRelayHeaderValid(relayHeight: u64): u64 acquires VotesByHeight,ParaChains {
+        // get votes of relayHeight
+        if (!exists<VotesByHeight>(MODULE_OWNER)) {
+            return CHECK_UNINIT;
+        };
+        let votes = & borrow_global<VotesByHeight>(MODULE_OWNER).votes;
+        // assert!(votes.contains(&relayHeight));
+        if (!votes.contains(&relayHeight)) {
+            return CHECK_NOT_EXIST;
+        };
+        let totalVotes = votes.borrow(&relayHeight);
+
+        // get number of parachains
+        assert!(exists<ParaChains>(MODULE_OWNER));
+        let totalParachains = borrow_global<ParaChains>(MODULE_OWNER).chains.compute_length();
+
+        // compare
+        if (*totalVotes > totalParachains/3*2) {
+            return CHECK_VOTE_OK;
+        };
+
+        CHECK_VOTE_NOT_ENOUGH
+    }
+
+    #[view]
+    public fun getRelayHeaderVotes(relayHeight: u64): (u64, u64) acquires VotesByHeight, ParaChains {
+        let maxVotes = getParachainCount();
+        if (!exists<VotesByHeight>(MODULE_OWNER)) {
+            return (0, maxVotes);
+        };
+        let votes = & borrow_global<VotesByHeight>(MODULE_OWNER).votes;
+        // assert!(votes.contains(&relayHeight));
+        if (!votes.contains(&relayHeight)) {
+            return (0, maxVotes);
+        };
+        let totalVotes = votes.borrow(&relayHeight);
+        
+        (*totalVotes, maxVotes)
+    }
+
 
 
     // Should be in-sync with NewBlockEvent rust struct in new_block.rs
@@ -197,9 +304,11 @@ module kimroniny::AptosTrust {
 
     #[test(account=@kimroniny)]
     fun registParaChainByCorrectOwner(account: &signer) acquires ParaChains {
-        registParaChain(account, 1u64);
+        let chainId = 1u64;
+        registParaChain(account, chainId);
         assert!(borrow_global<ParaChains>(MODULE_OWNER).chains.contains(&1));
         assert!(borrow_global<ParaChains>(MODULE_OWNER).chains.compute_length() == 1);
+        assert!(getParachain(chainId));
     }
 
     #[test(account=@0xCAFF)]
@@ -219,6 +328,9 @@ module kimroniny::AptosTrust {
         let AllHeaders {headersByChainId, headersByHeight} = borrow_global<AllHeaders>(MODULE_OWNER);
         assert!(headersByChainId.length() == 1);
         assert!(headersByHeight.length() == 1);
+        let (_relayHeight, _root) = getHeader(chainId, height);
+        assert!(block::get_current_block_height() == _relayHeight);
+        assert!(_root == root);
     }
 
     #[test(account=@kimroniny, vm=@vm_reserved, aptos_framework=@aptos_framework)]
