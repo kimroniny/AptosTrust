@@ -1,3 +1,4 @@
+import asyncio
 from aptos_sdk.account import Account
 
 async def main():
@@ -20,4 +21,5 @@ async def main():
     print(f"Alice's address: {alice.address()}")
     print(f"Bob's address: {bob.address()}")
     
-
+if __name__ == "__main__":
+    asyncio.run(main())
