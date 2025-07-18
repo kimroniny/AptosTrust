@@ -35,7 +35,7 @@ async def registParachain(sdk: AptosSDKPlus, account_from: Account, chainId: int
         wait=True
     )
     
-    print(f"Transaction(registParachain:{chainId}) completed with status: {'SUCCESS' if success else 'FAILURE'}")
+    # print(f"Transaction(registParachain:{chainId}) completed with status: {'SUCCESS' if success else 'FAILURE'}")
     print(f"--- VM Status: {vm_status}")
     print(f"--- Gas used: {gas_used}")
 
@@ -57,10 +57,15 @@ async def registParachain(sdk: AptosSDKPlus, account_from: Account, chainId: int
     )
     parachain_count = int(result[0])
     print(f"regist parachain {chainId} ok! Number of parachains: {parachain_count}")
+    print(f"--- VM Status: {vm_status}")
+    print(f"--- Gas used: {gas_used}")
 
 async def registAllParachains(sdk: AptosSDKPlus, account_from: Account, chainIds: List[int]):
+    print(f"*********************************************************")
+    print(f"register all parachains to Aptos(Hub)")
     for chainId in chainIds:
         await registParachain(sdk=sdk, account_from=account_from, chainId=chainId)
+    print(f"*********************************************************")
 
 async def sendHeaderToRelaychainBy1001(sdk: AptosSDKPlus, account_from: Account) -> Tuple[int, int]:
     # collectHeader
@@ -89,9 +94,8 @@ async def sendHeaderToRelaychainBy1001(sdk: AptosSDKPlus, account_from: Account)
         account_from=account_from,
         wait=True
     )
-    print(f"Transaction(sendHeaderToRelaychainBy1001) completed with status: {'SUCCESS' if success else 'FAILURE'}")
-    print(f"--- VM Status: {vm_status}")
-    print(f"--- Gas used: {gas_used}")
+    # print(f"Transaction(sendHeaderToRelaychainBy1001) completed with status: {'SUCCESS' if success else 'FAILURE'}")
+    
     result = await sdk.view_bcs_payload(
         module=MODULE,
         function="getHeader",
@@ -103,6 +107,8 @@ async def sendHeaderToRelaychainBy1001(sdk: AptosSDKPlus, account_from: Account)
     )
     relayHeight = int(result[0])
     print(f"store parachain({chainId}) header({height}) on Aptos(Hub): {result}")
+    print(f"--- VM Status: {vm_status}")
+    print(f"--- Gas used: {gas_used}")
     return height, relayHeight
 
 async def collectHeaderFromEachParachain(
@@ -181,7 +187,7 @@ async def collectHeadersFromParachains(
 async def evaluate(sdk: AptosSDKPlus, account_from: Account):
     # # regist 6 parachains [1001,1002,1003,1004,1005,1006]
     chainIds = [1001,1002,1003,1004,1005,1006]
-    # await registAllParachains(sdk, account_from, chainIds)
+    await registAllParachains(sdk, account_from, chainIds)
     
     # parachain 1001 sends header to relay chain
     para_chain_height, relay_height = await sendHeaderToRelaychainBy1001(sdk, account_from)
