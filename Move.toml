@@ -4,6 +4,7 @@ version = "1.0.0"
 authors = []
 
 [addresses]
+kimroniny = "0xc77b7dbca3976eae7be6d07c568c807929d12490bbfad5aec00a14720ca5b388"
 
 [dev-addresses]
 
