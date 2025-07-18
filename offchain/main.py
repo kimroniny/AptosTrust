@@ -102,7 +102,7 @@ async def sendHeaderToRelaychainBy1001(sdk: AptosSDKPlus, account_from: Account)
         ]
     )
     relayHeight = int(result[0])
-    print(f"store parachain({chainId}) header({height}) on relay chain: {result}")
+    print(f"store parachain({chainId}) header({height}) on Aptos(Hub): {result}")
     return height, relayHeight
 
 async def collectHeaderFromEachParachain(
@@ -145,7 +145,7 @@ async def collectHeaderFromEachParachain(
     )
     print(f"")
     print(f"*********************************************************")
-    print(f"relay chain collects parachain header(chainId={chainId}, height={height}), included into block({int(result[0])})")
+    print(f"Aptos(Hub) collects parachain header(chainId={chainId}, height={height}), included into block({int(result[0])})")
     print(f"--- VM Status: {vm_status}")
     print(f"--- Gas used: {gas_used}")
 
