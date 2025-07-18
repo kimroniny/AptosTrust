@@ -1,5 +1,15 @@
 # AptosTrust: Make Aptos the Trust Hub
 
+<!-- AptosTrust is a globally secure cross-chain architecure with Aptos as the trust hub. With global security among multiple heterogeneous blockchains, AptosTrust also achieves high performance with MOVE, a cutting-edge smart contract language. -->
+
+AptosTrust 是一个可以在多链生态下保证全生态安全的高性能跨链架构。
+
+AptosTrust 以高性能、去中心化、安全的 Aptos 区块链作为 Trust Hub。
+
+得益于 Aptos MOVE 语言的并行执行机制，AptosTrust 在保证全局高安全性的同时，也实现了多链交互过程的高性能。
+
+AptosTrust 可以联通 Ethereum、Solana、Sui、Avalanche 等区块链，使得 Aptos 在未来繁荣的多链生态中可以占据核心位置，成为整个多链生态的 Trust Hub。
+
 ![architecture](./figures/architecture.svg)
 
 ## 1. 问题背景
