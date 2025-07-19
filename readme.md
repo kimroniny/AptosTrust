@@ -181,9 +181,9 @@ Aptos(Hub) collects parachain header(chainId=1006, height=1752849110174), includ
 
 ## 4. 正在做以及未来要做的
 
-- [ ] 在以太坊、Avalanche区块链上实现平行链部分核心协议
+- [ ] 将多链生态拓展到 Ethereum、Avalanche、Sui、Solana 等区块链
+- [ ] 基于 AptosTrust 架构，构建多链资产安全交换应用
 - [ ] 采用 zk-SPV 实现 Aptos(Hub) 与平行链间的验证
-- [ ] 实现屏蔽平行链异构性的链下 relayer 
 - [ ] 进一步完善安全性理论证明
 - [ ] 对整个系统的负载、链上开销、交互时延等指标进行评估
 
