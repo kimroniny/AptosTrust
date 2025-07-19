@@ -49,7 +49,7 @@ AptosTrust 可以联通 Ethereum、Solana、Sui、Avalanche 等区块链，使�
 
 ![header-embedding-transition](./figures/transition.svg)
 
-#### 2.2.1 观察1：嵌套传递 
+### 2.2.1 观察1：嵌套传递 
 
 **多链生态下，区块头具有 “嵌套传递性”**
 
@@ -63,7 +63,7 @@ AptosTrust 可以联通 Ethereum、Solana、Sui、Avalanche 等区块链，使�
   - Aptos(Hub) 收集全网多数区块链对参与链的2/3认可（基于BFT安全模型，与已有方案类似）
     - 根据 “嵌套传递性”，认可结果最终会传递到目的平行链，从而可以验证收到的源链信息是否已经被整个多链生态共识
 
-#### 2.2.2 观察2：自确认性
+### 2.2.2 观察2：自确认性
 
 **多链生态下，Aptos作为Hub，具有“自确认性”**
 
